@@ -10,6 +10,6 @@ def hello():# function dengan nama hello
     return 'Hello, World!'
 
 # mengatur URI ke http://127.0.0.1:5000/login dan mengesekusi fungsi login() jika diakses di alamat URI http://127.0.0.1:5000/login
-@app.route("/login")
+@app.route('/login')
 def login():
     return 'halaman login'
