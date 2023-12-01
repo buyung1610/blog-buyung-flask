@@ -1,18 +1,35 @@
 import os
+from flask import Flask
 
-# import aplikasi flask untuk dipakai di web kita
-from cs50 import SQL
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
+def create_app(test_config=None):
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(
+        SECRET_KEY='dev',
+        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+    )
 
-# mengatur nama aplikasi
-app = Flask(__name__)
+    if test_config is None:
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        app.config.from_mapping(test_config)
 
-# mengatur URI (universal resource identifier) dan apa yang di tampilkan jika URI tersebut diakses
-@app.route('/')# ketika alamat http://127.0.0.1:5000/ dipanggil, maka server mengeksekusi fingsi hello()
-def hello():# function dengan nama hello
-    return 'Hello, World!'
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
 
-# mengatur URI ke http://127.0.0.1:5000/login dan mengesekusi fungsi login() jika diakses di alamat URI http://127.0.0.1:5000/login
-@app.route('/login')
-def login():
-    return 'halaman login'
+    @app.route('/hello')
+    def hello():
+        return 'Hello, World!'
+
+    from . import db
+    db.init_app(app)
+
+    from . import auth
+    app.register_blueprint(auth.bp)
+
+    from . import blog
+    app.register_blueprint(blog.bp)
+    app.add_url_rule('/', endpoint='index')
+
+    return app
